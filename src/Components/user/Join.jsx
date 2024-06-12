@@ -1,18 +1,17 @@
 import React, { useState } from "react";
+import { Row, Col, Form, InputGroup, Card, Button } from "react-bootstrap";
 import { app } from "../../firebaseinit";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Button, Card, Col, Form, InputGroup, Row } from "react-bootstrap";
-
-const Login = () => {
+const Join = () => {
   const navi = useNavigate();
+  const [loading, setLoading] = useState(false);
   const auth = getAuth(app);
   const [form, setForm] = useState({
     email: "5035als@naver.com",
-    password: "12341234",
+    pass: "12341234",
   });
-  const [loading, setLoading] = useState(false);
-  const { email, password } = form;
+  const { email, pass } = form;
   const onChange = (e) => {
     setForm({
       ...form,
@@ -21,36 +20,29 @@ const Login = () => {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-    if (email === "" || password === "") {
+    if (email === "" || pass === "") {
       alert("이메일과 비밀번호를 입력하세요!");
     } else {
-      setLoading(true);
       //로그인 체크
-      signInWithEmailAndPassword(auth, email, password)
+      setLoading(true);
+      createUserWithEmailAndPassword(auth, email, pass)
         .then((success) => {
-          alert("로그인 성공!!");
+          alert("가입 성공!");
           setLoading(false);
-          sessionStorage.setItem("email", email);
-          sessionStorage.setItem("uid", success.user.uid);
-          if (sessionStorage.getItem("target")) {
-            navi(sessionStorage.getItem("target"));
-          } else {
-            navi("/");
-          }
+          navi("/login");
         })
         .catch((error) => {
-          alert("에러:" + error.message);
+          alert("에러 : " + error.message);
           setLoading(false);
         });
     }
   };
-  if (loading) return <h1>로딩중입니다...</h1>;
   return (
     <Row className="my-5 justify-content-center">
       <Col md={6} lg={4}>
         <Card>
           <Card.Header>
-            <h3 className="text-center">로그인</h3>
+            <h3 className="text-center">회원가입</h3>
           </Card.Header>
           <Card.Body>
             <form onSubmit={onSubmit}>
@@ -59,10 +51,11 @@ const Login = () => {
                   style={{ width: 100 }}
                   className="justify-content-center"
                 >
-                  아이디
+                  이메일
                 </InputGroup.Text>
                 <Form.Control
                   name="email"
+                  placeholder="이메일을 입력해주세요."
                   value={email}
                   onChange={onChange}
                 ></Form.Control>
@@ -75,21 +68,17 @@ const Login = () => {
                   비밀번호
                 </InputGroup.Text>
                 <Form.Control
-                  name="password"
+                  name="pass"
                   type="password"
-                  value={password}
+                  placeholder="비밀번호를 입력해주세요."
+                  value={pass}
                   onChange={onChange}
                 ></Form.Control>
               </InputGroup>
               <div>
-                <Button type="submit" className="w-100 btn-dark">
-                  로그인
-                </Button>
-              </div>
-              <div>
-                <a href="/join" className="text-end" type="submit">
+                <Button className="my-2 w-100 btn-secondary" type="submit">
                   회원가입
-                </a>
+                </Button>
               </div>
             </form>
           </Card.Body>
@@ -99,4 +88,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Join;
